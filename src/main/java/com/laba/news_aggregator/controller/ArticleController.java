@@ -21,8 +21,10 @@ public class ArticleController {
     @GetMapping
     public Page<ArticleDto> getAllArticles(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category
     ) {
-        return articleService.getArticlesPaginated(page, size);
+        return articleService.getArticlesPaginated(page, size, search, category);
     }
 }
