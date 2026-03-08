@@ -2,8 +2,10 @@ package com.laba.news_aggregator.service;
 
 import com.laba.news_aggregator.entity.Article;
 import com.laba.news_aggregator.entity.Category;
+import com.laba.news_aggregator.entity.User;
 import com.laba.news_aggregator.repository.ArticleRepository;
 import com.laba.news_aggregator.repository.CategoryRepository;
+import com.laba.news_aggregator.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,10 +19,13 @@ public class NewsParserService {
 
     private final CategoryRepository categoryRepository;
     private final ArticleRepository articleRepository;
+    private final UserRepository userRepository;
 
-    public NewsParserService(CategoryRepository categoryRepository, ArticleRepository articleRepository) {
+    public NewsParserService(CategoryRepository categoryRepository, ArticleRepository articleRepository, UserRepository userRepository) {
         this.categoryRepository = categoryRepository;
         this.articleRepository = articleRepository;
+        this.userRepository = userRepository;
+
     }
 
     @PostConstruct
@@ -64,6 +69,20 @@ public class NewsParserService {
                     articleRepository.save(article);
                 }
             }
+
+            // --- ТЕСТОВИЙ БЛОК ДЛЯ КОРИСТУВАЧА ---
+            User testUser = new User("test_user", "test@laba.com");
+            testUser = userRepository.save(testUser);
+
+            Article firstArticle = articleRepository.findAll().get(0);
+            Article secondArticle = articleRepository.findAll().get(1);
+
+            testUser.addArticle(firstArticle);
+            testUser.addArticle(secondArticle);
+
+            userRepository.save(testUser);
+            System.out.println("Тестового користувача створено, збережено 2 новини в закладки!");
+            // ------------------------------------
 
             System.out.println("Мега-Парсинг завершено! 10 категорій та новини з картинками завантажено.");
 
