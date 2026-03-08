@@ -2,6 +2,7 @@ package com.laba.news_aggregator.service;
 
 import com.laba.news_aggregator.dto.ArticleDto;
 import com.laba.news_aggregator.dto.UserDto;
+import com.laba.news_aggregator.exception.ResourceNotFoundException;
 import com.laba.news_aggregator.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,6 @@ public class UserService {
                                 ))
                                 .toList()
                 ))
-                .orElseThrow(() -> new RuntimeException("Користувача з таким email не знайдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Користувача з email " + email + " не знайдено"));
     }
 }
