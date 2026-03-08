@@ -22,30 +22,39 @@ public class NewsParserService {
         this.articleRepository = articleRepository;
     }
 
-    // Анотація @PostConstruct змушує Spring виконати цей метод автоматично під час запуску сервера
     @PostConstruct
     public void parseNewsOnStartup() {
         try {
-            Category techCategory = new Category("Технології (BBC)");
-            techCategory = categoryRepository.save(techCategory);
+            String[][] feeds = {
+                    {"Технології", "http://feeds.bbci.co.uk/news/technology/rss.xml"},
+                    {"Світ", "http://feeds.bbci.co.uk/news/world/rss.xml"},
+                    {"Бізнес", "http://feeds.bbci.co.uk/news/business/rss.xml"}
+            };
 
-            String rssUrl = "http://feeds.bbci.co.uk/news/technology/rss.xml";
-            Document doc = Jsoup.connect(rssUrl).get();
+            for (String[] feed : feeds) {
+                String categoryName = feed[0];
+                String rssUrl = feed[1];
 
-            Elements items = doc.select("item");
+                Category category = new Category(categoryName);
+                category = categoryRepository.save(category);
 
-            for (int i = 0; i < Math.min(items.size(), 10); i++) {
-                Element item = items.get(i);
+                Document doc = Jsoup.connect(rssUrl).get();
+                Elements items = doc.select("item");
 
-                String title = item.select("title").text();
-                String link = item.select("link").text();
-                String description = item.select("description").text();
+                for (int i = 0; i < Math.min(items.size(), 5); i++) {
+                    Element item = items.get(i);
 
-                Article article = new Article(title, description, link, techCategory);
-                articleRepository.save(article);
+                    Article article = new Article(
+                            item.select("title").text(),
+                            item.select("description").text(),
+                            item.select("link").text(),
+                            category
+                    );
+                    articleRepository.save(article);
+                }
             }
 
-            System.out.println("Парсинг успішно завершено! Новини додано до бази даних.");
+            System.out.println("Парсинг успішно завершено! Кілька категорій додано до бази даних.");
 
         } catch (Exception e) {
             System.err.println("Помилка під час парсингу новин: " + e.getMessage());
