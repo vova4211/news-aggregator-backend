@@ -7,6 +7,7 @@ public record ArticleDto(
         String title,
         String content,
         String sourceUrl,
+        String imageUrl,
         LocalDateTime publishedAt,
         String categoryName
 ) {

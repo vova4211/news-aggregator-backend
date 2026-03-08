@@ -20,6 +20,9 @@ public class Article {
     @Column(nullable = false)
     private String sourceUrl;
 
+    @Column(length = 1000)
+    private String imageUrl;
+
     private LocalDateTime publishedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,12 +31,13 @@ public class Article {
 
     public Article() {}
 
-    public Article(String title, String content, String sourceUrl, Category category) {
+    public Article(String title, String content, String sourceUrl, String imageUrl, Category category) {
         this.title = title;
         this.content = content;
         this.sourceUrl = sourceUrl;
+        this.imageUrl = imageUrl;
         this.category = category;
-        this.publishedAt = LocalDateTime.now(); // Автоматично ставимо час створення
+        this.publishedAt = LocalDateTime.now();
     }
 
     public Long getId() { return id; }
@@ -48,4 +52,6 @@ public class Article {
     public void setPublishedAt(LocalDateTime publishedAt) { this.publishedAt = publishedAt; }
     public Category getCategory() { return category; }
     public void setCategory(Category category) { this.category = category; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

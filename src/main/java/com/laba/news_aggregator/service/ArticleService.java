@@ -23,6 +23,7 @@ public class ArticleService {
                         article.getTitle(),
                         article.getContent(),
                         article.getSourceUrl(),
+                        article.getImageUrl(),
                         article.getPublishedAt(),
                         article.getCategory() != null ? article.getCategory().getName() : "Без категорії"
                 ))

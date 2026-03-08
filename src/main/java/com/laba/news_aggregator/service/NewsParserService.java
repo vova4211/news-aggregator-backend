@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
@@ -26,38 +27,48 @@ public class NewsParserService {
     public void parseNewsOnStartup() {
         try {
             String[][] feeds = {
-                    {"Технології", "http://feeds.bbci.co.uk/news/technology/rss.xml"},
+                    {"Головні новини", "http://feeds.bbci.co.uk/news/rss.xml"},
                     {"Світ", "http://feeds.bbci.co.uk/news/world/rss.xml"},
-                    {"Бізнес", "http://feeds.bbci.co.uk/news/business/rss.xml"}
+                    {"Бізнес", "http://feeds.bbci.co.uk/news/business/rss.xml"},
+                    {"Політика", "http://feeds.bbci.co.uk/news/politics/rss.xml"},
+                    {"Технології", "http://feeds.bbci.co.uk/news/technology/rss.xml"},
+                    {"Наука", "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml"},
+                    {"Здоров'я", "http://feeds.bbci.co.uk/news/health/rss.xml"},
+                    {"Освіта", "http://feeds.bbci.co.uk/news/education/rss.xml"},
+                    {"Розваги", "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"},
+                    {"Спорт", "http://feeds.bbci.co.uk/sport/rss.xml"}
             };
 
             for (String[] feed : feeds) {
                 String categoryName = feed[0];
                 String rssUrl = feed[1];
 
-                Category category = new Category(categoryName);
-                category = categoryRepository.save(category);
+                Category category = categoryRepository.save(new Category(categoryName));
 
-                Document doc = Jsoup.connect(rssUrl).get();
+                Document doc = Jsoup.connect(rssUrl).parser(Parser.xmlParser()).get();
                 Elements items = doc.select("item");
 
                 for (int i = 0; i < Math.min(items.size(), 5); i++) {
                     Element item = items.get(i);
 
-                    Article article = new Article(
-                            item.select("title").text(),
-                            item.select("description").text(),
-                            item.select("link").text(),
-                            category
-                    );
+                    String title = item.select("title").text();
+                    String description = item.select("description").text();
+                    String link = item.select("link").text();
+
+                    String imageUrl = item.select("media|thumbnail").attr("url");
+                    if (imageUrl.isEmpty()) {
+                        imageUrl = "https://via.placeholder.com/600x400?text=No+Image"; // Заглушка, якщо картинки немає
+                    }
+
+                    Article article = new Article(title, description, link, imageUrl, category);
                     articleRepository.save(article);
                 }
             }
 
-            System.out.println("Парсинг успішно завершено! Кілька категорій додано до бази даних.");
+            System.out.println("Мега-Парсинг завершено! 10 категорій та новини з картинками завантажено.");
 
         } catch (Exception e) {
-            System.err.println("Помилка під час парсингу новин: " + e.getMessage());
+            System.err.println(" Помилка під час парсингу: " + e.getMessage());
         }
     }
 }
