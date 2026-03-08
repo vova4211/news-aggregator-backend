@@ -1,10 +1,12 @@
 package com.laba.news_aggregator.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import com.laba.news_aggregator.dto.ArticleDto;
 import com.laba.news_aggregator.repository.ArticleRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ArticleService {
@@ -15,9 +17,10 @@ public class ArticleService {
         this.articleRepository = articleRepository;
     }
 
-    public List<ArticleDto> getAllArticles() {
-        return articleRepository.findAll()
-                .stream()
+    public Page<ArticleDto> getArticlesPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        return articleRepository.findAll(pageable)
                 .map(article -> new ArticleDto(
                         article.getId(),
                         article.getTitle(),
@@ -26,7 +29,7 @@ public class ArticleService {
                         article.getImageUrl(),
                         article.getPublishedAt(),
                         article.getCategory() != null ? article.getCategory().getName() : "Без категорії"
-                ))
-                .toList();
+                ));
     }
 }
+
