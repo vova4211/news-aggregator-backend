@@ -6,6 +6,7 @@ import com.laba.news_aggregator.entity.User;
 import com.laba.news_aggregator.repository.ArticleRepository;
 import com.laba.news_aggregator.repository.CategoryRepository;
 import com.laba.news_aggregator.repository.UserRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import jakarta.annotation.PostConstruct;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,8 +30,11 @@ public class NewsParserService {
     }
 
     @PostConstruct
-    public void parseNewsOnStartup() {
+    @Scheduled(fixedDelay = 600000)
+    public void parseNews() {
         try {
+            System.out.println("⏳ Починаю фоновий збір новин...");
+
             String[][] feeds = {
                     {"Головні новини", "http://feeds.bbci.co.uk/news/rss.xml"},
                     {"Світ", "http://feeds.bbci.co.uk/news/world/rss.xml"},
@@ -44,50 +48,53 @@ public class NewsParserService {
                     {"Спорт", "http://feeds.bbci.co.uk/sport/rss.xml"}
             };
 
+            int newArticlesCount = 0;
+
             for (String[] feed : feeds) {
                 String categoryName = feed[0];
                 String rssUrl = feed[1];
 
-                Category category = categoryRepository.save(new Category(categoryName));
+                Category category = categoryRepository.findByName(categoryName)
+                        .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
                 Document doc = Jsoup.connect(rssUrl).parser(Parser.xmlParser()).get();
                 Elements items = doc.select("item");
 
-                for (int i = 0; i < Math.min(items.size(), 5); i++) {
+                for (int i = 0; i < Math.min(items.size(), 30); i++) {
                     Element item = items.get(i);
-
-                    String title = item.select("title").text();
-                    String description = item.select("description").text();
                     String link = item.select("link").text();
 
-                    String imageUrl = item.select("media|thumbnail").attr("url");
-                    if (imageUrl.isEmpty()) {
-                        imageUrl = "https://via.placeholder.com/600x400?text=No+Image"; // Заглушка, якщо картинки немає
-                    }
+                    if (!articleRepository.existsBySourceUrl(link)) {
+                        String title = item.select("title").text();
+                        String description = item.select("description").text();
 
-                    Article article = new Article(title, description, link, imageUrl, category);
-                    articleRepository.save(article);
+                        String imageUrl = item.select("media|thumbnail").attr("url");
+                        if (imageUrl.isEmpty()) {
+                            imageUrl = "https://via.placeholder.com/600x400?text=No+Image";
+                        }
+
+                        Article article = new Article(title, description, link, imageUrl, category);
+                        articleRepository.save(article);
+                        newArticlesCount++;
+                    }
                 }
             }
 
-            // --- ТЕСТОВИЙ БЛОК ДЛЯ КОРИСТУВАЧА ---
-            User testUser = new User("test_user", "test@laba.com");
-            testUser = userRepository.save(testUser);
+            if (userRepository.findByEmail("test@laba.com").isEmpty()) {
+                User testUser = new User("test_user", "test@laba.com");
+                testUser = userRepository.save(testUser);
 
-            Article firstArticle = articleRepository.findAll().get(0);
-            Article secondArticle = articleRepository.findAll().get(1);
+                if (articleRepository.count() >= 2) {
+                    testUser.addArticle(articleRepository.findAll().get(0));
+                    testUser.addArticle(articleRepository.findAll().get(1));
+                    userRepository.save(testUser);
+                }
+            }
 
-            testUser.addArticle(firstArticle);
-            testUser.addArticle(secondArticle);
-
-            userRepository.save(testUser);
-            System.out.println("Тестового користувача створено, збережено 2 новини в закладки!");
-            // ------------------------------------
-
-            System.out.println("Мега-Парсинг завершено! 10 категорій та новини з картинками завантажено.");
+            System.out.println("✅ Парсинг завершено! Додано нових статей: " + newArticlesCount);
 
         } catch (Exception e) {
-            System.err.println(" Помилка під час парсингу: " + e.getMessage());
+            System.err.println("❌ Помилка під час парсингу: " + e.getMessage());
         }
     }
 }

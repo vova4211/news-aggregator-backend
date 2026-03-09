@@ -10,5 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     Page<Article> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(String title, String content, Pageable pageable);
 
+    boolean existsBySourceUrl(String sourceUrl);
+
     Page<Article> findByCategory_NameIgnoreCase(String categoryName, Pageable pageable);
 }
