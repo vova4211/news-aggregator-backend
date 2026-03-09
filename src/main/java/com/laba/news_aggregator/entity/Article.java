@@ -11,13 +11,13 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(length = 500)
     private String title;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
+    @Column(length = 2000, nullable = false)
     private String sourceUrl;
 
     @Column(length = 1000)
@@ -31,11 +31,16 @@ public class Article {
 
     public Article() {}
 
+    // Конструктор
     public Article(String title, String content, String sourceUrl, String imageUrl, Category category) {
         this.title = title;
         this.content = content;
         this.sourceUrl = sourceUrl;
-        this.imageUrl = imageUrl;
+        if (imageUrl == null || imageUrl.isBlank()) {
+            this.imageUrl = "https://via.placeholder.com/600x400?text=News";
+        } else {
+            this.imageUrl = imageUrl;
+        }
         this.category = category;
         this.publishedAt = LocalDateTime.now();
     }
