@@ -24,14 +24,13 @@ public class ArticleService {
         Page<Article> articlePage;
 
         if (search != null && !search.isBlank()) {
-            articlePage = articleRepository.findByTitleContainingIgnoreCase(search, pageable);
+            articlePage = articleRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(search, search, pageable);
         } else if (category != null && !category.isBlank()) {
             articlePage = articleRepository.findByCategory_NameIgnoreCase(category, pageable);
         } else {
             articlePage = articleRepository.findAll(pageable);
         }
 
-        // Перетворюємо знайдені сутності на DTO і повертаємо
         return articlePage.map(article -> new ArticleDto(
                 article.getId(),
                 article.getTitle(),
