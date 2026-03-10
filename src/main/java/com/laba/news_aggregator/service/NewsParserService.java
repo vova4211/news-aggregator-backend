@@ -31,30 +31,30 @@ public class NewsParserService {
             System.out.println("⏳ Починаю фоновий збір новин...");
 
             String[][] feeds = {
-                    {"Головні новини", "http://feeds.bbci.co.uk/news/rss.xml"},
-                    {"Головні новини", "http://rss.cnn.com/rss/edition.rss"},
-                    {"Світ", "http://feeds.bbci.co.uk/news/world/rss.xml"},
-                    {"Світ", "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"},
-                    {"Світ", "http://rss.cnn.com/rss/edition_world.rss"},
-                    {"Політика", "http://feeds.bbci.co.uk/news/politics/rss.xml"},
-                    {"Політика", "https://rss.politico.com/politics-news.xml"},
+                    {"Спорт", "http://feeds.bbci.co.uk/sport/rss.xml"},
+                    {"Спорт", "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml"},
+                    {"Спорт", "https://www.espn.com/espn/rss/news"},
+                    {"Ігри", "https://www.polygon.com/rss/index.xml"},
+                    {"Ігри", "https://www.ign.com/rss/articles/feed"},
+                    {"Розваги", "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"},
+                    {"Розваги", "https://www.buzzfeed.com/entertainment.xml"},
+                    {"Здоров'я", "http://feeds.bbci.co.uk/news/health/rss.xml"},
+                    {"Освіта", "http://feeds.bbci.co.uk/news/education/rss.xml"},
+                    {"Наука", "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml"},
+                    {"Наука", "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml"},
                     {"Бізнес", "http://feeds.bbci.co.uk/news/business/rss.xml"},
                     {"Бізнес", "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml"},
+                    {"Політика", "http://feeds.bbci.co.uk/news/politics/rss.xml"},
+                    {"Політика", "https://rss.politico.com/politics-news.xml"},
                     {"Технології", "http://feeds.bbci.co.uk/news/technology/rss.xml"},
                     {"Технології", "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"},
                     {"Технології", "https://techcrunch.com/feed/"},
                     {"Технології", "https://www.theverge.com/rss/index.xml"},
-                    {"Наука", "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml"},
-                    {"Наука", "https://rss.nytimes.com/services/xml/rss/nyt/Science.xml"},
-                    {"Освіта", "http://feeds.bbci.co.uk/news/education/rss.xml"},
-                    {"Здоров'я", "http://feeds.bbci.co.uk/news/health/rss.xml"},
-                    {"Розваги", "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"},
-                    {"Розваги", "https://www.buzzfeed.com/entertainment.xml"},
-                    {"Ігри", "https://www.polygon.com/rss/index.xml"},
-                    {"Ігри", "https://www.ign.com/rss/articles/feed"},
-                    {"Спорт", "http://feeds.bbci.co.uk/sport/rss.xml"},
-                    {"Спорт", "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml"},
-                    {"Спорт", "https://www.espn.com/espn/rss/news"}
+                    {"Світ", "http://feeds.bbci.co.uk/news/world/rss.xml"},
+                    {"Світ", "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"},
+                    {"Світ", "http://rss.cnn.com/rss/edition_world.rss"},
+                    {"Головні новини", "http://feeds.bbci.co.uk/news/rss.xml"},
+                    {"Головні новини", "http://rss.cnn.com/rss/edition.rss"}
             };
 
             int newArticlesCount = 0;
@@ -123,6 +123,6 @@ public class NewsParserService {
             if (!url.isEmpty()) return url;
         }
 
-        return "https://via.placeholder.com/600x400?text=News";
+        return "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80";
     }
 }

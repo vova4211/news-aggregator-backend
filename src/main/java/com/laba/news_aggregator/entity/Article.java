@@ -31,13 +31,12 @@ public class Article {
 
     public Article() {}
 
-    // Конструктор
     public Article(String title, String content, String sourceUrl, String imageUrl, Category category) {
         this.title = title;
         this.content = content;
         this.sourceUrl = sourceUrl;
         if (imageUrl == null || imageUrl.isBlank()) {
-            this.imageUrl = "https://via.placeholder.com/600x400?text=News";
+            this.imageUrl = "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80";
         } else {
             this.imageUrl = imageUrl;
         }
