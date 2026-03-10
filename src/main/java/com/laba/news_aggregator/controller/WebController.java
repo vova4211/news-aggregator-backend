@@ -30,6 +30,9 @@ public class WebController {
     ) {
         var articlePage = articleService.getArticlesPaginated(page, size, search, category);
 
+        System.out.println("🚨 СПРОБА ВІДМАЛЮВАТИ СТОРІНКУ. ЗНАЙДЕНО НОВИН В БАЗІ: " + articlePage.getTotalElements());
+        System.out.println("🚨 ПЕРЕДАЄМО НА ФРОНТЕНД ШТУК: " + articlePage.getContent().size());
+
         Map<String, String> categoryIcons = Map.ofEntries(
                 Map.entry("Спорт", "bi-trophy"),
                 Map.entry("Ігри", "bi-controller"),
@@ -50,7 +53,6 @@ public class WebController {
         model.addAttribute("search", search);
         model.addAttribute("category", category);
         model.addAttribute("allCategories", categoryService.getAllCategories());
-
         model.addAttribute("icons", categoryIcons);
 
         return "index";

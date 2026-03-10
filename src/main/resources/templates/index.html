@@ -58,13 +58,11 @@
 <div class="bg-white shadow-sm mb-4">
     <div class="container pt-3">
         <div class="category-scroll">
-            <a href="/" class="btn rounded-pill me-2"
-               th:classappend="${category == null} ? 'btn-primary' : 'btn-outline-secondary'">
+            <a href="/" class="btn rounded-pill me-2" th:classappend="${category == null} ? 'btn-primary' : 'btn-outline-secondary'">
                 <i class="bi bi-stars"></i> Всі новини
             </a>
 
-            <a href="#" onclick="showBookmarks(event)" class="btn rounded-pill me-2 btn-outline-danger"
-               id="btn-bookmarks" style="display: none;">
+            <a href="#" onclick="showBookmarks(event)" class="btn rounded-pill me-2 btn-outline-danger" id="btn-bookmarks" style="display: none;">
                 <i class="bi bi-bookmark-heart-fill"></i> Мої закладки
             </a>
 
@@ -72,7 +70,6 @@
                th:href="@{/(category=${cat.name})}"
                class="btn rounded-pill me-2"
                th:classappend="${category == cat.name} ? 'btn-primary' : 'btn-outline-secondary'">
-
                 <i class="bi" th:classappend="${icons.get(cat.name) != null ? icons.get(cat.name) : 'bi-tag'}"></i>
                 <span th:text="${cat.name}"></span>
             </a>
@@ -81,25 +78,85 @@
 </div>
 
 <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Вхід / Реєстрація</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Акаунт</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Ваш Email</label>
-                    <input type="email" class="form-control" id="userEmailInput" placeholder="name@example.com">
+            <div class="modal-body p-4 pt-2">
+                <ul class="nav nav-pills nav-fill mb-4 bg-light p-1 rounded-pill" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button">Вхід</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button">Реєстрація</button>
+                    </li>
+                </ul>
+
+                <div id="authError" class="alert alert-danger py-2 small" style="display: none;"></div>
+                <div id="authSuccess" class="alert alert-success py-2 small" style="display: none;"></div>
+
+                <div class="tab-content" id="authTabContent">
+                    <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+                        <form id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Email</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label text-muted small mb-1">Пароль</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                                    <input type="password" class="form-control border-start-0 ps-0" id="loginPassword" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">Увійти</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="register-pane" role="tabpanel">
+                        <form id="registerForm" onsubmit="handleRegister(event)">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Ім'я користувача</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="regName" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small mb-1">Email</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control border-start-0 ps-0" id="regEmail" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label text-muted small mb-1">Пароль (мінімум 4 символи)</label>
+                                <div class="input-group shadow-sm rounded">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                                    <input type="password" class="form-control border-start-0 ps-0" id="regPassword" required minlength="4">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm" id="regBtn">Зареєструватися</button>
+                        </form>
+
+                        <form id="verifyForm" onsubmit="handleVerify(event)" style="display: none;">
+                            <div class="text-center mb-3">
+                                <i class="bi bi-envelope-paper-heart text-danger" style="font-size: 3rem;"></i>
+                                <p class="mt-2 mb-0 fw-bold">Перевірте пошту!</p>
+                                <p class="text-muted small">Код відправлено на <br> <span id="verifyEmailDisplay" class="fw-bold text-dark"></span></p>
+                            </div>
+                            <div class="mb-4">
+                                <input type="text" class="form-control form-control-lg text-center fw-bold bg-light shadow-inner" id="verifyCode" placeholder="000000" maxlength="6" required autocomplete="off" style="letter-spacing: 12px; font-size: 1.8rem;">
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100 rounded-pill fw-bold py-2 shadow-sm" id="verifyBtn">Підтвердити Email</button>
+                        </form>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Ваше Ім'я</label>
-                    <input type="text" class="form-control" id="userNameInput" placeholder="John Doe">
-                </div>
-                <div id="authError" class="text-danger small mb-2" style="display: none;"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100" onclick="handleAuth()">Продовжити</button>
             </div>
         </div>
     </div>
@@ -125,8 +182,7 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white border-0 text-muted small text-end pb-3">
-                    <i class="bi bi-clock"></i> <span
-                        th:text="${#temporals.format(article.publishedAt, 'dd-MM-yyyy HH:mm')}">Дата</span>
+                    <i class="bi bi-clock"></i> <span th:text="${#temporals.format(article.publishedAt, 'dd-MM-yyyy HH:mm')}">Дата</span>
                 </div>
             </div>
         </div>
@@ -136,7 +192,6 @@
         <div class="spinner-border text-primary" role="status"></div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script th:inline="javascript">
@@ -217,21 +272,110 @@
             });
     }
 
-    function handleAuth() {
-        const email = document.getElementById('userEmailInput').value;
-        const name = document.getElementById('userNameInput').value || 'User';
-        const errorDiv = document.getElementById('authError');
-        if (!email) { errorDiv.innerText = "Введіть Email!"; errorDiv.style.display = 'block'; return; }
+    function showAuthMsg(msg, isError = true) {
+        const errDiv = document.getElementById('authError');
+        const sucDiv = document.getElementById('authSuccess');
+        if (isError) {
+            sucDiv.style.display = 'none';
+            errDiv.innerText = msg;
+            errDiv.style.display = 'block';
+        } else {
+            errDiv.style.display = 'none';
+            sucDiv.innerText = msg;
+            sucDiv.style.display = 'block';
+        }
+    }
 
-        fetch(`/api/users/${email}`)
-            .then(res => {
-                if (res.ok) return res.json();
-                return fetch(`/api/users/register?username=${name}&email=${email}`, { method: 'POST' }).then(r => r.json());
+    document.getElementById('authModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('authError').style.display = 'none';
+        document.getElementById('authSuccess').style.display = 'none';
+        document.getElementById('loginForm').reset();
+        document.getElementById('registerForm').reset();
+        document.getElementById('verifyForm').reset();
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('verifyForm').style.display = 'none';
+    });
+
+    function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+
+        fetch(`/api/users/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`, { method: 'POST' })
+            .then(async res => {
+                if (!res.ok) throw new Error(await res.text());
+                return res.json();
             })
             .then(user => {
                 localStorage.setItem('userEmail', user.email);
                 bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
                 loadUserProfile(user.email);
+            })
+            .catch(err => {
+                let msg = err.message;
+                try { msg = JSON.parse(err.message).message; } catch(e) {}
+                showAuthMsg(msg);
+            });
+    }
+
+    let registeringEmail = "";
+    function handleRegister(event) {
+        event.preventDefault();
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const pass = document.getElementById('regPassword').value;
+        const btn = document.getElementById('regBtn');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Відправка листа...';
+
+        fetch(`/api/users/register?username=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`, { method: 'POST' })
+            .then(async res => {
+                if (!res.ok) throw new Error(await res.text());
+
+                registeringEmail = email;
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('verifyEmailDisplay').innerText = email;
+                document.getElementById('verifyForm').style.display = 'block';
+                showAuthMsg("Лист з кодом відправлено!", false);
+            })
+            .catch(err => {
+                let msg = err.message;
+                try { msg = JSON.parse(err.message).message; } catch(e) {}
+                showAuthMsg(msg);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Зареєструватися';
+            });
+    }
+
+    function handleVerify(event) {
+        event.preventDefault();
+        const code = document.getElementById('verifyCode').value;
+        const btn = document.getElementById('verifyBtn');
+
+        btn.disabled = true;
+        btn.innerText = 'Перевірка...';
+
+        fetch(`/api/users/verify?email=${encodeURIComponent(registeringEmail)}&code=${encodeURIComponent(code)}`, { method: 'POST' })
+            .then(async res => {
+                if (!res.ok) throw new Error(await res.text());
+                return res.json();
+            })
+            .then(user => {
+                localStorage.setItem('userEmail', user.email);
+                bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+                loadUserProfile(user.email);
+            })
+            .catch(err => {
+                let msg = err.message;
+                try { msg = JSON.parse(err.message).message; } catch(e) {}
+                showAuthMsg(msg);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Підтвердити Email';
             });
     }
 
@@ -315,8 +459,8 @@
         fetch(`/api/users/${currentUser.email}`)
             .then(res => res.json())
             .then(updatedUser => {
-                currentUser = updatedUser; // Оновили локальні дані
-                container.innerHTML = ''; // Прибрали спінер
+                currentUser = updatedUser;
+                container.innerHTML = '';
 
                 if (currentUser.savedArticles.length === 0) {
                     container.innerHTML = `
@@ -373,7 +517,6 @@
             }
         }
     }
-
 </script>
 </body>
 </html>

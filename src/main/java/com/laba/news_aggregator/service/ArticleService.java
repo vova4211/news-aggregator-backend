@@ -1,14 +1,14 @@
 package com.laba.news_aggregator.service;
 
-import org.springframework.transaction.annotation.Transactional;
+import com.laba.news_aggregator.dto.ArticleDto;
 import com.laba.news_aggregator.entity.Article;
+import com.laba.news_aggregator.repository.ArticleRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import com.laba.news_aggregator.dto.ArticleDto;
-import com.laba.news_aggregator.repository.ArticleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ArticleService {
@@ -44,4 +44,3 @@ public class ArticleService {
         ));
     }
 }
-
