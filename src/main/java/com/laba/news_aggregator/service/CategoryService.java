@@ -3,6 +3,7 @@ package com.laba.news_aggregator.service;
 import com.laba.news_aggregator.dto.CategoryDto;
 import com.laba.news_aggregator.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll()
                 .stream()

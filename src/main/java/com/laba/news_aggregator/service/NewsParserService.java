@@ -79,7 +79,7 @@ public class NewsParserService {
                         String rawDescription = item.select("description").text();
                         String cleanDescription = Jsoup.parse(rawDescription).text();
 
-                        String imageUrl = findImageUrl(item, rawDescription); // Передаємо сирий опис для пошуку картинки
+                        String imageUrl = findImageUrl(item, rawDescription);
 
                         Article article = new Article(title, cleanDescription, link, imageUrl, category);
                         articleRepository.save(article);

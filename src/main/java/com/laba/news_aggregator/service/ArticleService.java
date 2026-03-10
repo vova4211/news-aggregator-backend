@@ -1,5 +1,6 @@
 package com.laba.news_aggregator.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import com.laba.news_aggregator.entity.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ public class ArticleService {
         this.articleRepository = articleRepository;
     }
 
+    @Transactional(readOnly = true)
     public Page<ArticleDto> getArticlesPaginated(int page, int size, String search, String category) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 

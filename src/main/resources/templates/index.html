@@ -18,15 +18,22 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
         }
-        /* Горизонтальний скрол для категорій */
         .category-scroll {
             display: flex;
             overflow-x: auto;
             white-space: nowrap;
-            padding-bottom: 10px;
-            scrollbar-width: none; /* Ховаємо скролбар для краси */
+            padding-bottom: 12px;
         }
-        .category-scroll::-webkit-scrollbar { display: none; }
+        .category-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .category-scroll::-webkit-scrollbar-thumb {
+            background-color: #dee2e6;
+            border-radius: 10px;
+        }
+        .category-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
         .bookmark-btn { font-size: 1.2rem; cursor: pointer; }
     </style>
 </head>
@@ -34,7 +41,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">🌍 News Aggregator</a>
+        <a class="navbar-brand fw-bold" href="/"><i class="bi bi-globe2 me-2"></i>News Aggregator</a>
         <div class="d-flex align-items-center ms-auto">
             <form class="d-flex me-3" action="/" method="get">
                 <input class="form-control me-2 rounded-pill" type="search" name="search" placeholder="Пошук новин..."
@@ -42,8 +49,7 @@
                 <button class="btn btn-outline-light rounded-pill" type="submit"><i class="bi bi-search"></i></button>
             </form>
             <div id="auth-section">
-                <button class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#authModal">Увійти
-                </button>
+                <button class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#authModal">Увійти</button>
             </div>
         </div>
     </div>
@@ -53,13 +59,23 @@
     <div class="container pt-3">
         <div class="category-scroll">
             <a href="/" class="btn rounded-pill me-2"
-               th:classappend="${category == null} ? 'btn-primary' : 'btn-outline-secondary'">Всі новини</a>
+               th:classappend="${category == null} ? 'btn-primary' : 'btn-outline-secondary'">
+                <i class="bi bi-stars"></i> Всі новини
+            </a>
+
+            <a href="#" onclick="showBookmarks(event)" class="btn rounded-pill me-2 btn-outline-danger"
+               id="btn-bookmarks" style="display: none;">
+                <i class="bi bi-bookmark-heart-fill"></i> Мої закладки
+            </a>
 
             <a th:each="cat : ${allCategories}"
                th:href="@{/(category=${cat.name})}"
                class="btn rounded-pill me-2"
-               th:classappend="${category == cat.name} ? 'btn-primary' : 'btn-outline-secondary'"
-               th:text="${cat.name}">Категорія</a>
+               th:classappend="${category == cat.name} ? 'btn-primary' : 'btn-outline-secondary'">
+
+                <i class="bi" th:classappend="${icons.get(cat.name) != null ? icons.get(cat.name) : 'bi-tag'}"></i>
+                <span th:text="${cat.name}"></span>
+            </a>
         </div>
     </div>
 </div>
@@ -99,12 +115,10 @@
                     <span class="badge bg-primary bg-opacity-10 text-primary mb-2 align-self-start rounded-pill"
                           th:text="${article.categoryName}">Категорія</span>
                     <h5 class="card-title fw-bold" th:text="${article.title}">Заголовок</h5>
-                    <p class="card-text text-muted small" th:text="${#strings.abbreviate(article.content, 120)}">
-                        Опис...</p>
+                    <p class="card-text text-muted small" th:text="${#strings.abbreviate(article.content, 120)}">Опис...</p>
 
                     <div class="mt-auto d-flex justify-content-between align-items-center border-top pt-3">
-                        <a th:href="${article.sourceUrl}" target="_blank" class="text-decoration-none fw-bold">Читати
-                            далі <i class="bi bi-arrow-right"></i></a>
+                        <a th:href="${article.sourceUrl}" target="_blank" class="text-decoration-none fw-bold">Читати далі <i class="bi bi-arrow-right"></i></a>
                         <i class="bi bi-heart bookmark-btn text-danger"
                            th:onclick="'toggleBookmark(this, ' + ${article.id} + ')'"
                            style="display: none;"></i>
@@ -132,6 +146,7 @@
     let categoryParam = /*[[${category}]]*/ '';
     let isLoading = false;
     let currentUser = null;
+    let isShowingBookmarks = false;
 
     document.addEventListener("DOMContentLoaded", () => {
         const savedEmail = localStorage.getItem('userEmail');
@@ -142,7 +157,7 @@
 
     window.addEventListener('scroll', () => {
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-            if (!isLoading && currentPage < totalPages - 1) loadNextPage();
+            if (!isLoading && currentPage < totalPages - 1 && !isShowingBookmarks) loadNextPage();
         }
     });
 
@@ -160,7 +175,8 @@
             .then(data => {
                 const container = document.getElementById('news-container');
                 data.content.forEach(article => {
-const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80";                    const imgUrl = article.imageUrl ? article.imageUrl : defaultImg;
+                    const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80";
+                    const imgUrl = article.imageUrl ? article.imageUrl : defaultImg;
                     const dateObj = new Date(article.publishedAt);
                     const formattedDate = dateObj.toLocaleDateString('uk-UA') + ' ' + dateObj.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
                     const catName = article.categoryName ? article.categoryName : 'Без категорії';
@@ -173,7 +189,7 @@ const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e
                     }
 
                     const cardHtml = `
-                        <div class="col">
+                        <div class="col" id="article-card-${article.id}">
                             <div class="card h-100 article-card border-0 shadow-sm rounded-4 overflow-hidden">
                                 <img src="${imgUrl}" class="card-img-top" onerror="this.src='${defaultImg}'">
                                 <div class="card-body d-flex flex-column">
@@ -230,6 +246,7 @@ const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e
             })
             .then(user => {
                 currentUser = user;
+                document.getElementById('btn-bookmarks').style.display = 'inline-block';
                 document.getElementById('auth-section').innerHTML = `
                     <div class="dropdown">
                         <button class="btn btn-light rounded-pill dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -264,19 +281,99 @@ const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e
 
     function toggleBookmark(btnElement, articleId) {
         if (!currentUser) return;
+
+        if (btnElement.classList.contains('bi-heart')) {
+            btnElement.classList.remove('bi-heart');
+            btnElement.classList.add('bi-heart-fill');
+        } else {
+            btnElement.classList.remove('bi-heart-fill');
+            btnElement.classList.add('bi-heart');
+        }
+
         fetch(`/api/users/${currentUser.email}/bookmarks/${articleId}`, { method: 'POST' })
-            .then(() => {
-                if (btnElement.classList.contains('bi-heart')) {
-                    btnElement.classList.remove('bi-heart');
-                    btnElement.classList.add('bi-heart-fill');
-                    currentUser.savedArticles.push({id: articleId});
-                } else {
-                    btnElement.classList.remove('bi-heart-fill');
-                    btnElement.classList.add('bi-heart');
-                    currentUser.savedArticles = currentUser.savedArticles.filter(a => a.id !== articleId);
+            .catch(err => console.error("Помилка збереження", err));
+    }
+
+    function showBookmarks(event) {
+        event.preventDefault();
+
+        if (!currentUser) return;
+        isShowingBookmarks = true;
+
+        document.querySelectorAll('.category-scroll .btn').forEach(b => {
+            b.classList.remove('btn-primary', 'btn-danger');
+            b.classList.add('btn-outline-secondary');
+        });
+        event.currentTarget.classList.remove('btn-outline-secondary', 'btn-outline-danger');
+        event.currentTarget.classList.add('btn-danger');
+
+        const container = document.getElementById('news-container');
+        document.getElementById('loading-spinner').style.display = 'none';
+
+        container.innerHTML = '<div class="col-12 text-center my-5"><div class="spinner-border text-danger" role="status"></div></div>';
+
+        fetch(`/api/users/${currentUser.email}`)
+            .then(res => res.json())
+            .then(updatedUser => {
+                currentUser = updatedUser; // Оновили локальні дані
+                container.innerHTML = ''; // Прибрали спінер
+
+                if (currentUser.savedArticles.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 d-flex flex-column align-items-center justify-content-center my-5 py-5">
+                            <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3 fw-bold">У вас поки немає збережених новин</h4>
+                            <p class="text-muted small">Додавайте новини до закладок, щоб прочитати їх пізніше.</p>
+                        </div>`;
+                    return;
                 }
+
+                currentUser.savedArticles.forEach(article => {
+                    const defaultImg = "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80";
+                    const imgUrl = article.imageUrl ? article.imageUrl : defaultImg;
+                    const dateObj = new Date(article.publishedAt);
+                    const formattedDate = dateObj.toLocaleDateString('uk-UA') + ' ' + dateObj.toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'});
+                    const catName = article.categoryName ? article.categoryName : 'Без категорії';
+                    const contentStr = article.content.length > 120 ? article.content.substring(0, 120) + '...' : article.content;
+
+                    const cardHtml = `
+                        <div class="col" id="article-card-${article.id}">
+                            <div class="card h-100 article-card border-0 shadow-sm rounded-4 overflow-hidden">
+                                <img src="${imgUrl}" class="card-img-top" onerror="this.src='${defaultImg}'">
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary mb-2 align-self-start rounded-pill">${catName}</span>
+                                    <h5 class="card-title fw-bold">${article.title}</h5>
+                                    <p class="card-text text-muted small">${contentStr}</p>
+
+                                    <div class="mt-auto d-flex justify-content-between align-items-center border-top pt-3">
+                                        <a href="${article.sourceUrl}" target="_blank" class="text-decoration-none fw-bold">Читати далі <i class="bi bi-arrow-right"></i></a>
+                                        <i class="bi bi-heart-fill bookmark-btn text-danger"
+                                           onclick="toggleBookmark(this, ${article.id}); removeCardFromBookmarks(${article.id})"
+                                           style="display: block;"></i>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 text-muted small text-end pb-3">
+                                    <i class="bi bi-clock"></i> <span>${formattedDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', cardHtml);
+                });
             });
     }
+
+    function removeCardFromBookmarks(articleId) {
+        if (isShowingBookmarks) {
+            const card = document.getElementById(`article-card-${articleId}`);
+            if (card) {
+                card.style.transition = "opacity 0.3s";
+                card.style.opacity = "0";
+                setTimeout(() => card.remove(), 300);
+            }
+        }
+    }
+
 </script>
 </body>
 </html>

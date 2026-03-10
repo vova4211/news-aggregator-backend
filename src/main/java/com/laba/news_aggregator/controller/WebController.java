@@ -1,11 +1,13 @@
 package com.laba.news_aggregator.controller;
 
 import com.laba.news_aggregator.service.ArticleService;
-import com.laba.news_aggregator.service.CategoryService; // ДОДАНО
+import com.laba.news_aggregator.service.CategoryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Map;
 
 @Controller
 public class WebController {
@@ -28,13 +30,28 @@ public class WebController {
     ) {
         var articlePage = articleService.getArticlesPaginated(page, size, search, category);
 
+        Map<String, String> categoryIcons = Map.ofEntries(
+                Map.entry("Спорт", "bi-trophy"),
+                Map.entry("Ігри", "bi-controller"),
+                Map.entry("Бізнес", "bi-briefcase"),
+                Map.entry("Головні новини", "bi-newspaper"),
+                Map.entry("Здоров'я", "bi-heart-pulse"),
+                Map.entry("Наука", "bi-lightbulb"),
+                Map.entry("Освіта", "bi-book"),
+                Map.entry("Політика", "bi-bank"),
+                Map.entry("Розваги", "bi-film"),
+                Map.entry("Світ", "bi-globe-americas"),
+                Map.entry("Технології", "bi-laptop")
+        );
+
         model.addAttribute("articles", articlePage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", articlePage.getTotalPages());
         model.addAttribute("search", search);
         model.addAttribute("category", category);
-        // Передаємо всі категорії на фронтенд для меню
         model.addAttribute("allCategories", categoryService.getAllCategories());
+
+        model.addAttribute("icons", categoryIcons);
 
         return "index";
     }
