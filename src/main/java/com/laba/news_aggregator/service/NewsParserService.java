@@ -28,7 +28,7 @@ public class NewsParserService {
     @Scheduled(fixedDelay = 600000)
     public void parseNews() {
         try {
-            System.out.println("⏳ Починаю фоновий збір новин...");
+            System.out.println("Починаю фоновий збір новин...");
 
             String[][] feeds = {
                     {"Спорт", "http://feeds.bbci.co.uk/sport/rss.xml"},

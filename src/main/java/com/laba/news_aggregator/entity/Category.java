@@ -18,7 +18,6 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Article> articles = new ArrayList<>();
 
-    //
     public Category() {}
 
     public Category(String name) {

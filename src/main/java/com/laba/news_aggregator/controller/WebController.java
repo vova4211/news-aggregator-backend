@@ -30,8 +30,8 @@ public class WebController {
     ) {
         var articlePage = articleService.getArticlesPaginated(page, size, search, category);
 
-        System.out.println("🚨 СПРОБА ВІДМАЛЮВАТИ СТОРІНКУ. ЗНАЙДЕНО НОВИН В БАЗІ: " + articlePage.getTotalElements());
-        System.out.println("🚨 ПЕРЕДАЄМО НА ФРОНТЕНД ШТУК: " + articlePage.getContent().size());
+        System.out.println("СПРОБА ВІДМАЛЮВАТИ СТОРІНКУ. ЗНАЙДЕНО НОВИН В БАЗІ: " + articlePage.getTotalElements());
+        System.out.println("ПЕРЕДАЄМО НА ФРОНТЕНД ШТУК: " + articlePage.getContent().size());
 
         Map<String, String> categoryIcons = Map.ofEntries(
                 Map.entry("Спорт", "bi-trophy"),
