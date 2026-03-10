@@ -25,8 +25,18 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public UserDto register(@RequestParam String username, @RequestParam String email) {
-        return userService.registerUser(username, email);
+    public void register(@RequestParam String username, @RequestParam String email, @RequestParam String password) {
+        userService.registerUser(username, email, password);
+    }
+
+    @PostMapping("/verify")
+    public UserDto verify(@RequestParam String email, @RequestParam String code) {
+        return userService.verifyCode(email, code);
+    }
+
+    @PostMapping("/login")
+    public UserDto login(@RequestParam String email, @RequestParam String password) {
+        return userService.login(email, password);
     }
 
     @PostMapping("/{email}/bookmarks/{articleId}")
